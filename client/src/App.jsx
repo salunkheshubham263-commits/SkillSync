@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route  } from "react-router-dom"
 import Forms from "./pages/Forms"
 import Logo from "./pages/Logo"
+import Dashboard from "./pages/Dashboard"
 
 const App = () => {
   return (
@@ -14,6 +15,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<Logo />}/>
           <Route path="/forms" element={<Forms />}/>
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
     </div>
