@@ -1,0 +1,21 @@
+{
+  "name": "skillsync",
+  "version": "1.0.0",
+  "description": "SkillSync is a full-stack student networking platform inspired by LinkedIn, designed to help students showcase their skills, share projects, and connect with like-minded peers.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/salunkheshubham263-commits/SkillSync.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/salunkheshubham263-commits/SkillSync/issues"
+  },
+  "homepage": "https://github.com/salunkheshubham263-commits/SkillSync#readme"
+}
