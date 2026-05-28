@@ -1,11 +1,11 @@
 import { useState } from "react";
-import Feed from "../components/Feed";
-import Network from "../components/Network";
-import Messages from "../components/Messages";
-import Projects from "../components/Projects";
-import Notiflication from "../components/Notiflication";
-import Profile from "../components/Profile";
-import Setting from "../components/Setting";
+import Feed from "../components/dashboard/Feed";
+import Network from "../components/dashboard/Network";
+import Messages from "../components/dashboard/Messages";
+import Projects from "../components/dashboard/Projects";
+import Notiflication from "../components/dashboard/Notiflication";
+import Profile from "../components/dashboard/Profile";
+import Setting from "../components/dashboard/Setting";
 
 const Dashboard = () => {
     const [active, setActive] = useState("home")

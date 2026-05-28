@@ -1,10 +1,10 @@
 import { useState } from "react"
-import Change_pass from "../components/Change_pass"
-import Forgot from "../components/Forgot"
-import Login from "../components/Login"
-import PageWrapper from "../components/PageWrapper"
-import Recovery_code from "../components/Recovery_code"
-import Sign_up from "../components/Sign_up"
+import Change_pass from "../components/auth/Change_pass"
+import Forgot from "../components/auth/Forgot"
+import Login from "../components/auth/Login"
+import PageWrapper from "../components/common/PageWrapper"
+import Recovery_code from "../components/auth/Recovery_code"
+import Sign_up from "../components/auth/Sign_up"
 
 const Forms = () => {
   const [activeForm, setActiveForm] = useState("login");
