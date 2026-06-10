@@ -275,28 +275,45 @@ const logoutAllDevice = async (req, res) => {
 
 const verifyEmail = async (req, res) => {
   try {
-    const {otp, email} = req.body;
-    const otpHash = crypto.createHash("sha256").update(otp).digest("hex");
+    const { otp, email } = req.body;
 
-    const otpDoc = await pool.query("select * from otps where email= $1 and otpHash=$2", [email,otp]);
+    const otpHash = crypto
+      .createHash("sha256")
+      .update(otp)
+      .digest("hex");
 
-    if(!otpDoc){
+    const otpDoc = await pool.query(
+      "SELECT * FROM otps WHERE email = $1 AND otpHash = $2",
+      [email, otpHash]
+    );
+
+    if (otpDoc.rows.length === 0) {
       return res.status(400).json({
         message: "Invalid OTP"
-      })
+      });
     }
 
-    const user = await pool.query("update users set verified=true where email=$1 returning *", [email]);
-    await pool.query("delete from otps where email=$1",[email]);
+    await pool.query(
+      "UPDATE users SET verified = true WHERE email = $1",
+      [email]
+    );
+
+    await pool.query(
+      "DELETE FROM otps WHERE email = $1",
+      [email]
+    );
 
     return res.status(200).json({
       message: "Email verified successfully"
-    })
+    });
 
   } catch (error) {
-    console.error(error.message);
+    console.error(error);
+    return res.status(500).json({
+      message: "Server error"
+    });
   }
-}
+};
 
 module.exports = {
   signUpUser,

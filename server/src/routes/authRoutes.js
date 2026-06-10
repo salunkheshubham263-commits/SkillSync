@@ -9,6 +9,6 @@ router.get ("/refresh-token", refreshToken);
 router.post("/login", loginUser);
 router.get("/logout", logoutUser);
 router.get("/logout-all", logoutAllDevice);
-router.get("/verify-email", verifyEmail);
+router.post("/verify-email", verifyEmail);
 
 module.exports = router;

@@ -26,6 +26,7 @@ const Sign_up = ({ setActiveForm }) => {
             if (response.ok) {
                 toast.success(data.message || "Account is created");
                 setActiveForm("otpVerification");
+                localStorage.setItem("verifyEmail", email);
             } else {
                 toast.error(data.message);
             }
