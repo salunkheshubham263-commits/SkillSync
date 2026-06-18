@@ -9,7 +9,7 @@ const OTP_Verification = ({ setActiveForm }) => {
         try {
             const body = {otp, email};
             
-            const response = await fetch("http://localhost:5000/api/auth/verify-email", {
+            const response = await fetch("http://192.168.0.106:5000/api/auth/verify-email", {
                 method: "POST",
                 headers: { "content-type": "application/json" },
                 credentials: "include",

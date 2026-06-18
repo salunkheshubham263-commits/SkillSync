@@ -13,7 +13,8 @@ CREATE TABLE users (
 );
 
 SELECT * FROM users;
-
+DELETE FROM users WHERE user_id=3;
+DELETE FROM otps WHERE user_id = 3;
 -- TRUNCATE TABLE users RESTART IDENTITY CASCADE;
 
 -- DROP TABLE users;

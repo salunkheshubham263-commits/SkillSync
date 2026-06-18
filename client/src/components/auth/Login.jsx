@@ -13,7 +13,7 @@ const Login = ({ setActiveForm }) => {
         e.preventDefault();
         try {
             const body = { email, password };
-            const response = await fetch("http://localhost:5000/api/auth/login", {
+            const response = await fetch("http://192.168.0.106:5000/api/auth/login", {
                 method: "POST",
                 headers: { "content-type": "application/json" },
                 credentials: "include",
