@@ -61,12 +61,6 @@ const Dashboard = () => {
         <button id="btn-mobile" className={`Task-bar ${active === "projects" ? "active" : ""}`} onClick={() => setActive("projects")}><svg xmlns="http://www.w3.org/2000/svg" width={23} fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" className="size-6">
           <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
         </svg></button>
-        <button id="btn" className={`Task-bar ${active === "notiflication" ? "active" : ""}`} onClick={() => setActive("notiflication")}><svg xmlns="http://www.w3.org/2000/svg" width={23} fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" className="size-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
-        </svg>Notiflications</button>
-        <button id="btn-mobile" className={`Task-bar ${active === "notiflication" ? "active" : ""}`} onClick={() => setActive("notiflication")}><svg xmlns="http://www.w3.org/2000/svg" width={23} fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" className="size-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
-        </svg></button>
         <button id="btn" className={`Task-bar news-btn ${active === "news" ? "active" : ""}`} onClick={() => setActive("news")} >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" width={23} >
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
@@ -111,7 +105,7 @@ const Dashboard = () => {
             </div>
           </form>
           <div className="buttons">
-            <button className="notify"><svg xmlns="http://www.w3.org/2000/svg" width={23} fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" className="size-6">
+            <button className={`notify ${active === "notiflication" ? "active" : ""}`} onClick={() => setActive("notiflication")}><svg xmlns="http://www.w3.org/2000/svg" width={23} fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" className="size-6">
               <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
             </svg></button>
             <div className="profile-section" ref={dropdownRef}>
@@ -167,7 +161,15 @@ const Dashboard = () => {
             {active === "news" && <News />}
           </div>
           <div className="news">
-            News
+            <div className="trending-skills">
+              
+            </div>
+            <div className="upcomming-event">
+
+            </div>
+            <div className="tech-news">
+
+            </div>
           </div>
         </div>
       </div>

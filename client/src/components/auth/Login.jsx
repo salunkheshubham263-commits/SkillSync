@@ -1,11 +1,11 @@
 import { useState } from "react"
 import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
 
 const Login = ({ setActiveForm }) => {
 
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -13,7 +13,7 @@ const Login = ({ setActiveForm }) => {
         e.preventDefault();
         try {
             const body = { email, password };
-            const response = await fetch("http://192.168.0.106:5000/api/auth/login", {
+            const response = await fetch("http://192.168.0.104:5000/api/auth/login", {
                 method: "POST",
                 headers: { "content-type": "application/json" },
                 credentials: "include",
@@ -23,8 +23,10 @@ const Login = ({ setActiveForm }) => {
             const data = await response.json();
 
             if (response.ok) {
+                localStorage.setItem("token", data.accessToken);
+
                 toast.success(data.message || "Login successful");
-                navigate("/dashboard");
+                setActiveForm("completeProfile");
             } else {
                 toast.error(data.message || "Please create an account first or enter information correctly!");
             }
