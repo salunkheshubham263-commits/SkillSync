@@ -64,9 +64,10 @@ CREATE TABLE profiles (
     github_id BIGINT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 select * from profiles;
+-- TRUNCATE TABLE profiles RESTART IDENTITY CASCADE;
 
 CREATE TABLE skills (
     skill_id SERIAL PRIMARY KEY,
@@ -77,6 +78,10 @@ CREATE TABLE user_skills (
     user_id INTEGER NOT NULL REFERENCES users(user_id),
     skill_id INTEGER NOT NULL REFERENCES skills(skill_id)
 );
+
+select * from user_skills;
+
+-- TRUNCATE TABLE user_skills RESTART IDENTITY CASCADE;
 
 INSERT INTO skills (skill_name)
 VALUES

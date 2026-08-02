@@ -4,7 +4,33 @@ const completeProfile = async (req, res) => {
   try {
     const { college, course, courseYear, city, bio } = req.body;
     const imageName = req.file ? req.file.filename : null;
-    const selectedSkills = JSON.parse(req.body.selectedSkills);
+
+    let selectedSkills = [];
+    if (req.body.selectedSkills) {
+      try {
+        selectedSkills = JSON.parse(req.body.selectedSkills);
+      } catch (parseError) {
+        return res.status(400).json({
+          message: "Invalid skills payload. Please select skills again.",
+        });
+      }
+    }
+
+    if (!Array.isArray(selectedSkills)) {
+      return res.status(400).json({
+        message: "Selected skills must be an array.",
+      });
+    }
+
+    const parsedCourseYear = courseYear
+      ? parseInt(String(courseYear).trim(), 10)
+      : null;
+
+    if (courseYear && Number.isNaN(parsedCourseYear)) {
+      return res.status(400).json({
+        message: "Invalid course year. Please provide a numeric year.",
+      });
+    }
 
     console.log(req.body);
     console.log(req.file);
@@ -17,7 +43,7 @@ const completeProfile = async (req, res) => {
       // insert profile
       await pool.query(
         "insert into profiles (user_id,profile_image, college, courses, courses_year, city, bio) values($1,$2,$3,$4,$5,$6,$7)",
-        [req.user.id, imageName, college, course, courseYear, city, bio],
+        [req.user.id, imageName, college, course, parsedCourseYear, city, bio],
       );
       // insert skills
       for (const skillId of selectedSkills) {
@@ -48,6 +74,12 @@ const completeProfile = async (req, res) => {
       console.log(err.constraint);
       console.log(err.stack);
       console.log("===============");
+
+      if (err.code === "23505" && err.constraint === "profiles_user_id_key") {
+        return res.status(409).json({
+          error: "Profile already completed for this user.",
+        });
+      }
 
       return res.status(500).json({
         error: err.message,

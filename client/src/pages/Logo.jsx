@@ -1,10 +1,13 @@
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
 import { useNavigate } from "react-router-dom";
+import gsap from "gsap";
+import useAuth from "../hooks/useAuth"; // Adjust path
 
-const Logo = () => {
-    const logoRef = useRef();
+const LogoScreen = () => {
     const navigate = useNavigate();
+    const { user, loading } = useAuth();
+
+    const logoRef = useRef();
 
     useEffect(() => {
         const tl = gsap.timeline({
@@ -30,11 +33,25 @@ const Logo = () => {
         tl.to({}, { duration: 3 });
 
     });
+
+    useEffect(() => {
+        // Only navigate AFTER the session check is completely done
+        if (!loading) {
+            if (user) {
+                // User is valid, send to dashboard
+                navigate("/dashboard", { replace: true });
+            } else {
+                // No user, send to login
+                navigate("/forms", { replace: true });
+            }
+        }
+    }, [user, loading, navigate]);
+
     return (
         < div className='logo_page' >
             <img className="logo-img" ref={logoRef} src='logo-light.png' alt="logo"></img>
-        </div >
-    )
-}
+        </div > 
+    );
+};
 
-export default Logo;
+export default LogoScreen;

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Complete_Profile = ({ setActiveForm }) => {
     const [preview, setPreview] = useState("");
 
     const fileInputRef = useRef(null);
-
+    const navigate = useNavigate();
     const handleImagePreview = (e) => {
         const file = e.target.files[0];
 
@@ -42,7 +43,7 @@ const Complete_Profile = ({ setActiveForm }) => {
     useEffect(() => {
         const fetchSkills = async () => {
             try {
-                const response = await axios.get("http://192.168.0.104:5000/api/profile/skills");
+                const response = await axios.get("http://192.168.0.114:5000/api/profile/skills");
 
                 setSkills(response.data);
             } catch (err) {
@@ -54,7 +55,7 @@ const Complete_Profile = ({ setActiveForm }) => {
         fetchSkills();
     }, []);
 
-    const filteredSkills = skills.filter(skill => skill.skill_name.toLowerCase().includes(search.toLowerCase()) && !selectSkills.includes(skill.skill_name));
+    const filteredSkills = skills.filter(skill => skill.skill_name.toLowerCase().includes(search.toLowerCase()) && !selectSkills.some(selected => selected.skill_id === skill.skill_id));
     const addSkill = (skill) => {
         if (selectSkills.includes(skill)) return;
 
@@ -90,7 +91,9 @@ const Complete_Profile = ({ setActiveForm }) => {
 
         const formData = new FormData();
 
-        formData.append("profileImage", image);
+        if (image) {
+            formData.append("profileImage", image);
+        }
         formData.append("college", college);
         formData.append("course", course);
         formData.append("courseYear", courseYear);
@@ -99,14 +102,18 @@ const Complete_Profile = ({ setActiveForm }) => {
         formData.append("selectedSkills", JSON.stringify(selectSkills.map(skill => skill.skill_id)));
 
         try {
-            console.log(localStorage.getItem("token"));
-            const response = await axios.post("http://192.168.0.104:5000/api/profile/complete-profile", formData, {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("Missing authentication token.");
+                return;
+            }
+            await axios.post("http://192.168.0.114:5000/api/profile/complete-profile", formData, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                    Authorization: `Bearer ${token}`,
                 }
             });
-            
-            console.log(response.data);
+
+            navigate("/dashboard");
         } catch (err) {
             console.log(err.response);
             console.log(err);
@@ -137,7 +144,7 @@ const Complete_Profile = ({ setActiveForm }) => {
 
                 <input className="inputes" type="text" placeholder="Enter college name" value={college} onChange={(e) => setCollege(e.target.value)} />
                 <input className="inputes" type="text" placeholder="Enter your course" value={course} onChange={(e) => setCourse(e.target.value)} />
-                <input className="inputes" type="text" placeholder="Enter your course year ex. 1st year" value={courseYear} onChange={(e) => setCourseYear(e.target.value)} />
+                <input className="inputes" type="number" placeholder="Enter your course year (numeric)" value={courseYear} onChange={(e) => setCourseYear(e.target.value)} />
                 <input className="inputes" type="text" placeholder="Enter your city" value={city} onChange={(e) => setCity(e.target.value)} />
                 <textarea className="inputes" placeholder="Enter a Bio optional" maxLength={60} value={bio} onChange={(e) => setBio(e.target.value)} />
                 <div className="skills-dropdown" ref={dropdownRef}>

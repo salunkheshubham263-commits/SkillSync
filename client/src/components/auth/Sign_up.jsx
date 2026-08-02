@@ -2,7 +2,6 @@ import { useState } from "react"
 import { toast } from "react-toastify";
 
 const Sign_up = ({ setActiveForm }) => {
-
     const [first_name, setFirstName] = useState("");
     const [last_name, setLastName] = useState("");
     const [username, setUserName] = useState("");
@@ -14,7 +13,7 @@ const Sign_up = ({ setActiveForm }) => {
         e.preventDefault();
         try {
             const body = { first_name, last_name, username, email, age, password };
-            const response = await fetch("http://192.168.0.106:5000/api/auth/signup", {
+            const response = await fetch("http://192.168.0.114:5000/api/auth/signup", {
                 method: "POST",
                 headers: { "content-type": "application/json" },
                 credentials: "include",
@@ -25,13 +24,15 @@ const Sign_up = ({ setActiveForm }) => {
 
             if (response.ok) {
                 toast.success(data.message || "Account is created");
-                setActiveForm("otpVerification");
                 localStorage.setItem("verifyEmail", email);
+                localStorage.setItem("verifySource", "signup");
+                setActiveForm("otpVerification");
             } else {
                 toast.error(data.message);
             }
         } catch (err) {
             console.error(err.message);
+            toast.error("Server Error");
         }
     }
 
@@ -47,11 +48,11 @@ const Sign_up = ({ setActiveForm }) => {
                 <input className="inputes" type="password" name="sign-password" placeholder="Create a strong password" value={password} onChange={e => setPassword(e.target.value)} required />
                 <div style={{ display: "flex", gap: "20px", width: "100%", justifyContent: "center" }}>
                     <button type="submit" className="login-btn">Submit</button>
-                    <button onClick={() => setActiveForm("login")} className="login-btn">Back</button>
+                    <button type="button" onClick={() => setActiveForm("login")} className="login-btn">Back</button>
                 </div>
             </form>
         </div>
     )
 }
 
-export default Sign_up
+export default Sign_up;

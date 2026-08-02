@@ -26,6 +26,53 @@
   align-items: center;
   justify-content: center;
 }
+
+.loading-screen {
+    height: 100vh;
+    width: 100%;
+    background: #0d1117; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.logo-glow-pro {
+    position: absolute;
+    width: 350px;
+    height: 120px;
+    background: linear-gradient(90deg, #38bdf8, #8b5cf6);
+    filter: blur(80px);
+    opacity: 0;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.loading-logo-horizontal {
+    width: 340px;
+    z-index: 2;
+    margin-bottom: 50px;
+}
+
+.loading-bar-pro {
+    width: 220px;
+    height: 2px;
+    background: #1e293b;
+    border-radius: 4px;
+    overflow: hidden;
+    z-index: 2;
+}
+
+.loading-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #38bdf8, #8b5cf6);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.4); 
+}
+
 .form-page {
   width: 100%;
   min-height: 100vh;
@@ -208,7 +255,7 @@
 
 .skills-menu {
   position: absolute;
-  top: 105%;
+  top: 114%;
   left: 0;
   width: 100%;
   background: #fff;
