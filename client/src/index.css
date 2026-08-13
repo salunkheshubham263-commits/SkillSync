@@ -392,6 +392,22 @@
   padding: 0 20px;
   z-index: 999;
 }
+.main-content .github{
+  background-color: #24292e;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.5s ease,
+    background-color 0.5s;
+}
+.main-content .github:hover {
+  background-color: black;
+  transform: translateY(-0.5px);
+}
 .main-content .hero1 {
   margin-top: 65px;
   display: grid;
@@ -684,6 +700,11 @@
 
   .main-content nav .search {
     height: 9vh;
+  }
+
+  .main-content .github{
+    padding: 8px 15px;
+    font-size: 0.9vw;
   }
 
   .main-content .hero1 .news {

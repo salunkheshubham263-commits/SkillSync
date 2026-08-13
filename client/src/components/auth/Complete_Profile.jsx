@@ -43,7 +43,7 @@ const Complete_Profile = ({ setActiveForm }) => {
     useEffect(() => {
         const fetchSkills = async () => {
             try {
-                const response = await axios.get("http://192.168.0.114:5000/api/profile/skills");
+                const response = await axios.get("http://192.168.0.108:5000/api/profile/skills");
 
                 setSkills(response.data);
             } catch (err) {
@@ -107,7 +107,7 @@ const Complete_Profile = ({ setActiveForm }) => {
                 console.error("Missing authentication token.");
                 return;
             }
-            await axios.post("http://192.168.0.114:5000/api/profile/complete-profile", formData, {
+            await axios.post("http://192.168.0.108:5000/api/profile/complete-profile", formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 }

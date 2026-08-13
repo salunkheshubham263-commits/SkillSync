@@ -29,6 +29,54 @@ const Dashboard = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+const githubLogin = async () => {
+  try {
+    // 1. Fetch token using the correct key saved during login
+    const accessToken = localStorage.getItem("token");
+
+    if (!accessToken) {
+      alert("Please login first.");
+      return;
+    }
+
+    // 2. Make Request to Backend API
+    const response = await fetch(
+      "http://192.168.0.108:5000/api/auth/github-login",
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    // 3. Prevent SyntaxError on non-JSON response (e.g. 500 HTML pages)
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      const textError = await response.text();
+      console.error("Non-JSON Server Response:", textError);
+      alert("Server returned an invalid response. Check backend terminal.");
+      return;
+    }
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("GitHub login error:", data);
+      alert(data.message || "GitHub connection failed");
+      return;
+    }
+
+    // 4. Redirect browser to GitHub OAuth URL
+    window.location.href = data.githubURL;
+
+  } catch (error) {
+    console.error("GitHub login execution error:", error);
+    alert("Unable to connect to GitHub");
+  }
+};
+
   return (
     <div className="dashboard">
       <aside className="side-bar">
@@ -105,6 +153,7 @@ const Dashboard = () => {
             </div>
           </form>
           <div className="buttons">
+            <button className="github" onClick={githubLogin}>GitHub Connect</button>
             <button className={`notify ${active === "notiflication" ? "active" : ""}`} onClick={() => setActive("notiflication")}><svg xmlns="http://www.w3.org/2000/svg" width={23} fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="size-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
             </svg></button>
@@ -162,7 +211,7 @@ const Dashboard = () => {
           </div>
           <div className="news">
             <div className="trending-skills">
-              
+
             </div>
             <div className="upcomming-event">
 

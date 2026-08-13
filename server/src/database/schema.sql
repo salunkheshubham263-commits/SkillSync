@@ -68,6 +68,7 @@ CREATE TABLE profiles (
 
 select * from profiles;
 -- TRUNCATE TABLE profiles RESTART IDENTITY CASCADE;
+ALTER TABLE profiles DROP COLUMN github_username;
 
 CREATE TABLE skills (
     skill_id SERIAL PRIMARY KEY,
@@ -283,3 +284,16 @@ VALUES
 ('Microservices'),
 ('System Design'),
 ('Software Architecture');
+
+CREATE TABLE github_accounts (
+    github_id BIGINT PRIMARY KEY,
+    user_id INT UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+    github_username VARCHAR(100),
+    profile_url TEXT,
+    avatar_url TEXT,
+    access_token TEXT,
+    connected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+SELECT * FROM github_accounts;
+-- TRUNCATE TABLE github_accounts RESTART IDENTITY CASCADE;

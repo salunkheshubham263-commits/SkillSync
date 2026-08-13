@@ -10,6 +10,8 @@ const {
   logoutUser,
   logoutAllDevice,
   verifyEmail,
+  githubLogin,
+  githubCallback,
 } = require("../controllers/authController");
 
 router.post("/signup", signUpUser);
@@ -20,5 +22,7 @@ router.post("/login", loginUser);
 router.get("/logout", logoutUser);
 router.get("/logout-all", logoutAllDevice);
 router.post("/verify-email", verifyEmail);
+router.get("/github-login", auth, githubLogin);
+router.get("/github/callback", githubCallback);
 
 module.exports = router;

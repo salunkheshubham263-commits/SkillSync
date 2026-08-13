@@ -3,6 +3,9 @@ const pool = require("../config/db");
 const sendEmail = require("../services/emailService");
 const sendOtp = require("../utils/sendotp");
 const { generateOtp, getOtpHtml } = require("../utils/otpGeneration");
+const axios = require("axios");
+const jwt = require("../utils/jwt");
+const config = require("../config/config");
 
 const {
   generateAccessToken,
@@ -352,6 +355,148 @@ const verifyEmail = async (req, res) => {
   }
 };
 
+const githubLogin = async (req, res) => {
+  try {
+    // req.user comes from your auth middleware
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User identity missing from token" });
+    }
+
+    // Generate signed state JWT with 10m expiration
+    const state = jwt.generateGithubState(userId);
+
+    // Build GitHub Auth URL
+    const githubURL = `https://github.com/login/oauth/authorize?client_id=${config.github_client_id}&state=${state}&scope=user`;
+
+    return res.status(200).json({ githubURL });
+  } catch (error) {
+    console.error("Error in githubLogin controller:", error);
+    return res.status(500).json({ message: error.message || "Failed to generate GitHub authorization URL" });
+  }
+};
+
+// Handles GitHub OAuth redirect callback
+const githubCallback = async (req, res) => {
+  try {
+    const { code, state } = req.query;
+
+    if (!code) {
+      return res.status(400).json({ message: "No code received from GitHub" });
+    }
+
+    if (!state) {
+      return res.status(400).json({ message: "No state received from GitHub" });
+    }
+
+    // Verify State Token
+    let decodedState;
+    try {
+      decodedState = jwt.verifyToken(state);
+    } catch (err) {
+      console.error("Invalid GitHub OAuth state:", err.message);
+      return res.status(401).json({ message: "Invalid or expired OAuth state" });
+    }
+
+    if (decodedState.purpose !== "github_oauth") {
+      return res.status(401).json({ message: "Invalid OAuth state purpose" });
+    }
+
+    const skillSyncUserId = decodedState.id;
+
+    // Verify user exists in database
+    const userResult = await pool.query(
+      `SELECT user_id FROM users WHERE user_id = $1`,
+      [skillSyncUserId]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: "SkillSync user not found" });
+    }
+
+    // Exchange code for GitHub access token
+    const tokenResponse = await axios.post(
+      "https://github.com/login/oauth/access_token",
+      {
+        client_id: config.github_client_id,
+        client_secret: config.github_client_secret,
+        code,
+      },
+      {
+        headers: { Accept: "application/json" },
+      }
+    );
+
+    const accessToken = tokenResponse.data.access_token;
+
+    if (!accessToken) {
+      console.error("GitHub token response error:", tokenResponse.data);
+      return res.status(400).json({ message: "Failed to obtain GitHub access token" });
+    }
+
+    // Get GitHub User Details
+    const userResponse = await axios.get("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github+json",
+      },
+    });
+
+    const githubUser = userResponse.data;
+
+    // Check if GitHub account belongs to another SkillSync user
+    const existingGithub = await pool.query(
+      `SELECT user_id FROM github_accounts WHERE github_id = $1`,
+      [githubUser.id]
+    );
+
+    if (
+      existingGithub.rows.length > 0 &&
+      Number(existingGithub.rows[0].user_id) !== Number(skillSyncUserId)
+    ) {
+      return res.status(409).send(`
+        <h2>GitHub account already connected</h2>
+        <p>This GitHub account is already connected to another SkillSync account.</p>
+        <a href="http://localhost:5173/dashboard">Return to SkillSync</a>
+      `);
+    }
+
+    // Upsert GitHub Account
+    await pool.query(
+      `
+      INSERT INTO github_accounts
+        (github_id, user_id, github_username, profile_url, avatar_url, access_token)
+      VALUES
+        ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (user_id)
+      DO UPDATE SET
+        github_id = EXCLUDED.github_id,
+        github_username = EXCLUDED.github_username,
+        profile_url = EXCLUDED.profile_url,
+        avatar_url = EXCLUDED.avatar_url,
+        access_token = EXCLUDED.access_token,
+        connected_at = CURRENT_TIMESTAMP
+      `,
+      [
+        githubUser.id,
+        skillSyncUserId,
+        githubUser.login,
+        githubUser.html_url,
+        githubUser.avatar_url,
+        accessToken,
+      ]
+    );
+
+    // Redirect to Dashboard
+    return res.redirect("http://localhost:5173/dashboard");
+
+  } catch (err) {
+    console.error("GitHub connection error:", err.response?.data || err.message || err);
+    return res.status(500).json({ message: "GitHub connection failed" });
+  }
+};
+
 module.exports = {
   signUpUser,
   getMe,
@@ -360,4 +505,6 @@ module.exports = {
   logoutUser,
   logoutAllDevice,
   verifyEmail,
+  githubLogin,
+  githubCallback,
 };

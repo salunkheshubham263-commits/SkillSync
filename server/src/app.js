@@ -8,7 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 
 app.use(cors({
-    origin: true,
+    origin: ["http://localhost:5173", "http://192.168.0.108:5173"],
     credentials: true,
 }));
 app.use(express.json());
