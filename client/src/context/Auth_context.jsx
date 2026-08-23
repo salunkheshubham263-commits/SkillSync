@@ -14,7 +14,7 @@ const AuthProvider = ({ children }) => {
 
             if (token) {
                 try {
-                    const me = await axios.get("http://192.168.0.108:5000/api/auth/me", {
+                    const me = await axios.get("http://192.168.0.118:5000/api/auth/me", {
                         headers: {
                             authorization: `Bearer ${token}`,
                         }
@@ -29,7 +29,7 @@ const AuthProvider = ({ children }) => {
             }
 
             const res = await axios.get(
-                "http://192.168.0.108:5000/api/auth/refresh-token",
+                "http://192.168.0.118:5000/api/auth/refresh-token",
                 {
                     withCredentials: true
                 }

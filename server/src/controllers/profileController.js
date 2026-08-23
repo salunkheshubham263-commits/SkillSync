@@ -107,7 +107,36 @@ const getSkills = async (req, res) => {
   }
 };
 
+const getProfileImage = async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT profile_image
+       FROM profiles
+       WHERE user_id = $1`,
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: "Profile not found"
+      });
+    }
+
+    res.status(200).json({
+      profileImage: result.rows[0].profile_image
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      message: "Server error"
+    });
+  }
+};
+
 module.exports = {
   completeProfile,
   getSkills,
+  getProfileImage,
 };

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import axios from "axios";
 import Feed from "../components/dashboard/Feed";
 import Network from "../components/dashboard/Network";
 import Messages from "../components/dashboard/Messages";
@@ -30,52 +31,89 @@ const Dashboard = () => {
     };
   }, []);
 
-const githubLogin = async () => {
-  try {
-    // 1. Fetch token using the correct key saved during login
-    const accessToken = localStorage.getItem("token");
+  const githubLogin = async () => {
+    try {
+      // 1. Fetch token using the correct key saved during login
+      const accessToken = localStorage.getItem("token");
 
-    if (!accessToken) {
-      alert("Please login first.");
-      return;
-    }
-
-    // 2. Make Request to Backend API
-    const response = await fetch(
-      "http://192.168.0.108:5000/api/auth/github-login",
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+      if (!accessToken) {
+        alert("Please login first.");
+        return;
       }
-    );
 
-    // 3. Prevent SyntaxError on non-JSON response (e.g. 500 HTML pages)
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      const textError = await response.text();
-      console.error("Non-JSON Server Response:", textError);
-      alert("Server returned an invalid response. Check backend terminal.");
-      return;
+      // 2. Make Request to Backend API
+      const response = await fetch(
+        "http://192.168.0.118:5000/api/auth/github-login",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      // 3. Prevent SyntaxError on non-JSON response (e.g. 500 HTML pages)
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        const textError = await response.text();
+        console.error("Non-JSON Server Response:", textError);
+        alert("Server returned an invalid response. Check backend terminal.");
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("GitHub login error:", data);
+        alert(data.message || "GitHub connection failed");
+        return;
+      }
+
+      // 4. Redirect browser to GitHub OAuth URL
+      window.location.href = data.githubURL;
+
+    } catch (error) {
+      console.error("GitHub login execution error:", error);
+      alert("Unable to connect to GitHub");
     }
+  };
 
-    const data = await response.json();
+  const [profileImage, setProfileImage] = useState("");
+  const [trendingSkills, setTrendingSkills] = useState([]);
 
-    if (!response.ok) {
-      console.error("GitHub login error:", data);
-      alert(data.message || "GitHub connection failed");
-      return;
+  useEffect(() => {
+    const fetchTrendingSkills = async () => {
+      try {
+        const response = await axios.get("http://192.168.0.118:5000/api/dashboard/get-trending-skills");
+        setTrendingSkills(response.data);
+      } catch (err) {
+        console.error(err);
+      }
     }
+    fetchTrendingSkills();
+  }, []);
 
-    // 4. Redirect browser to GitHub OAuth URL
-    window.location.href = data.githubURL;
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      try {
+        const response = await axios.get(
+          "http://192.168.0.118:5000/api/profile/getProfileImage",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`
+            }
+          }
+        );
 
-  } catch (error) {
-    console.error("GitHub login execution error:", error);
-    alert("Unable to connect to GitHub");
-  }
-};
+        setProfileImage(response.data.profileImage);
+
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchProfileImage();
+  }, []);
 
   return (
     <div className="dashboard">
@@ -159,7 +197,8 @@ const githubLogin = async () => {
             </svg></button>
             <div className="profile-section" ref={dropdownRef}>
               <img
-                src="profile.jpg"
+                src={profileImage ? `http://192.168.0.118:5000/uploads/profiles/${profileImage}` : "profile_picture.png"
+                }
                 alt="Profile"
                 className="profile-pic"
                 onClick={() => setOpen(!open)}
@@ -211,7 +250,15 @@ const githubLogin = async () => {
           </div>
           <div className="news">
             <div className="trending-skills">
+              <h4>Trending Skills</h4>
 
+              <div className="trending-skills-list">
+                {trendingSkills.map((skill, index) => (
+                  <div className="skill-card" key={index}>
+                    {skill}
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="upcomming-event">
 

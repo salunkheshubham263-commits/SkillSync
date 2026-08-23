@@ -6,15 +6,17 @@ const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 app.use(cors({
-    origin: ["http://localhost:5173", "http://192.168.0.108:5173"],
+    origin: ["http://localhost:5173", "http://192.168.0.118:5173"],
     credentials: true,
 }));
 app.use(express.json());
 app.use(cookie());
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static(path.join(__dirname,"uploads")));
 
 

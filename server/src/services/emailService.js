@@ -23,7 +23,7 @@ transpoter.verify((error, success)=> {
 const sendEmail = async (to, subject, text, html) => {
     try {
         const info = await transpoter.sendMail({
-            from: `"Your Name" <${config.google_user}>`,
+            from: `"SkillSync" <${config.google_user}>`,
             to,
             subject,
             text,

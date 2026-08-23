@@ -77,7 +77,8 @@ CREATE TABLE skills (
 
 CREATE TABLE user_skills (
     user_id INTEGER NOT NULL REFERENCES users(user_id),
-    skill_id INTEGER NOT NULL REFERENCES skills(skill_id)
+    skill_id INTEGER NOT NULL REFERENCES skills(skill_id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 select * from user_skills;

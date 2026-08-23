@@ -28,49 +28,49 @@
 }
 
 .loading-screen {
-    height: 100vh;
-    width: 100%;
-    background: #0d1117; 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    position: relative;
+  height: 100vh;
+  width: 100%;
+  background: #0d1117;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
 }
 
 .logo-glow-pro {
-    position: absolute;
-    width: 350px;
-    height: 120px;
-    background: linear-gradient(90deg, #38bdf8, #8b5cf6);
-    filter: blur(80px);
-    opacity: 0;
-    border-radius: 50%;
-    z-index: 1;
+  position: absolute;
+  width: 350px;
+  height: 120px;
+  background: linear-gradient(90deg, #38bdf8, #8b5cf6);
+  filter: blur(80px);
+  opacity: 0;
+  border-radius: 50%;
+  z-index: 1;
 }
 
 .loading-logo-horizontal {
-    width: 340px;
-    z-index: 2;
-    margin-bottom: 50px;
+  width: 340px;
+  z-index: 2;
+  margin-bottom: 50px;
 }
 
 .loading-bar-pro {
-    width: 220px;
-    height: 2px;
-    background: #1e293b;
-    border-radius: 4px;
-    overflow: hidden;
-    z-index: 2;
+  width: 220px;
+  height: 2px;
+  background: #1e293b;
+  border-radius: 4px;
+  overflow: hidden;
+  z-index: 2;
 }
 
 .loading-progress-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #38bdf8, #8b5cf6);
-    border-radius: 4px;
-    box-shadow: 0 0 10px rgba(139, 92, 246, 0.4); 
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #38bdf8, #8b5cf6);
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
 }
 
 .form-page {
@@ -392,7 +392,7 @@
   padding: 0 20px;
   z-index: 999;
 }
-.main-content .github{
+.main-content .github {
   background-color: #24292e;
   color: white;
   padding: 10px 20px;
@@ -430,25 +430,65 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  box-sizing: border-box;
 }
 
 .news .trending-skills {
   width: 100%;
-  height: 15%;
+  height: auto;
   border: 2px solid red;
+  padding: 10px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.news .trending-skills h4 {
+  margin: 0 0 10px 0;
+}
+
+.trending-skills-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.skill-card {
+  padding: 6px 18px;
+  background: linear-gradient(
+    45deg,
+    #82d5fd,
+    #cee7fd,
+    #c5d1f7,
+    #ded5f1
+  );
+  color: #2B526B;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 25px;
+  width: fit-content;
+  margin: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  cursor: default;
 }
 
 .news .upcomming-event {
   width: 100%;
-  height: 42.5%;
+  flex: 1;
   border: 2px solid green;
+  box-sizing: border-box;
 }
 
 .news .tech-news {
   width: 100%;
-  height: 42.5%;
+  flex: 1;
   border: 2px solid black;
+  box-sizing: border-box;
 }
+
 .main-content nav .search-bar {
   position: relative;
   display: inline-block;
@@ -702,7 +742,7 @@
     height: 9vh;
   }
 
-  .main-content .github{
+  .main-content .github {
     padding: 8px 15px;
     font-size: 0.9vw;
   }
