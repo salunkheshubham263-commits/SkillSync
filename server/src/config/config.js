@@ -33,6 +33,18 @@ if(!process.env.Github_CLIENT_Secret){
     throw new Error("Github_CLIENT_Secret is not defined in environment variables.");
 }
 
+if(!process.env.Gnews_API_KEY){
+    throw new Error("Gnews_API_KEY is not defined in environment variables.");
+}
+
+if(!process.env.DevPost_API_KEY){
+    throw new Error("DevPost_API_KEY is not defined in environment variables.");
+}
+
+if(!process.env.Brabble_API_KEY){
+    throw new Error("Brabble_API_KEY is not defined in environment variables.");
+}
+
 const config = {
     db: process.env.Db_password,
     jwt_secret: process.env.JWT_Secret,
@@ -41,6 +53,10 @@ const config = {
     google_refresh_token: process.env.Google_REFRESH_Token,
     google_user: process.env.Google_USER,
     github_client_id: process.env.Github_CLIENT_ID,
-    github_client_secret: process.env.Github_CLIENT_Secret
+    github_client_secret: process.env.Github_CLIENT_Secret,
+    gnews_api_key: process.env.Gnews_API_KEY,
+    devpost_api_key: process.env.DevPost_API_KEY,
+    brabble_api_key: process.env.Brabble_API_KEY
 };
+
 module.exports = config;

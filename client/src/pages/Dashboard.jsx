@@ -80,20 +80,48 @@ const Dashboard = () => {
 
   const [profileImage, setProfileImage] = useState("");
   const [trendingSkills, setTrendingSkills] = useState([]);
+  const [currentHackathon, setCurrentHackathon] = useState(0);
+  const [hackathons, setHackathons] = useState([]);
 
   useEffect(() => {
-    const fetchTrendingSkills = async () => {
+    if (hackathons.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentHackathon((prev) =>
+        (prev + 1) % hackathons.length
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [hackathons]);
+
+  useEffect(() => {
+    const fetchHackathon = async () => {
       try {
-        const response = await axios.get("http://192.168.0.118:5000/api/dashboard/get-trending-skills");
-        setTrendingSkills(response.data);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    fetchTrendingSkills();
-  }, []);
+        const token = localStorage.getItem("token");
 
-  useEffect(() => {
+        console.log("TOKEN:", token);
+
+        const response = await axios.get(
+          "http://192.168.0.118:5000/api/dashboard/get-upcoming-events",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        console.log("Hackathons:", response.data);
+
+        setHackathons(response.data);
+
+      } catch (error) {
+        console.error("Hackathon fetch error:", error);
+        console.log("Status:", error.response?.status);
+        console.log("Response:", error.response?.data);
+      }
+    };
+
     const fetchProfileImage = async () => {
       try {
         const response = await axios.get(
@@ -112,7 +140,18 @@ const Dashboard = () => {
       }
     };
 
+    const fetchTrendingSkills = async () => {
+      try {
+        const response = await axios.get("http://192.168.0.118:5000/api/dashboard/get-trending-skills");
+        setTrendingSkills(response.data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchTrendingSkills();
     fetchProfileImage();
+    fetchHackathon();
   }, []);
 
   return (
@@ -261,10 +300,41 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="upcomming-event">
-
-            </div>
-            <div className="tech-news">
-
+              {hackathons.length > 0 && (
+                <>
+                  <div className="hackathon-cards">
+                    <h4>{hackathons[currentHackathon].title}</h4>
+                    <p>
+                      <strong>Mode:</strong>{" "}
+                      {hackathons[currentHackathon].mode}
+                    </p>
+                    <p>
+                      <strong>Deadline:</strong>{" "}
+                      {new Date(
+                        hackathons[currentHackathon].deadline
+                      ).toLocaleString()}
+                    </p>
+                    <a
+                      href={hackathons[currentHackathon].url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View Hackathon →
+                    </a>
+                  </div>
+                  <div className="hackathon-dots">
+                    {hackathons.map((_, index) => (
+                      <button
+                        key={index}
+                        className={
+                          index === currentHackathon ? "active" : ""
+                        }
+                        onClick={() => setCurrentHackathon(index)}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

@@ -18,21 +18,13 @@ SELECT * FROM users;
 
 CREATE TABLE sessions (
     session_id SERIAL PRIMARY KEY,
-
     user_id INTEGER NOT NULL REFERENCES users(user_id),
-
     refresh_token_hash TEXT NOT NULL,
-
     ip_address VARCHAR(45),
-
     user_agent TEXT,
-
     is_revoked BOOLEAN DEFAULT FALSE,
-
     expires_at TIMESTAMP NOT NULL,
-
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -68,7 +60,6 @@ CREATE TABLE profiles (
 
 select * from profiles;
 -- TRUNCATE TABLE profiles RESTART IDENTITY CASCADE;
-ALTER TABLE profiles DROP COLUMN github_username;
 
 CREATE TABLE skills (
     skill_id SERIAL PRIMARY KEY,

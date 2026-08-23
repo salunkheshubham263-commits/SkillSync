@@ -431,13 +431,15 @@
   flex-direction: column;
   gap: 10px;
   box-sizing: border-box;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .news .trending-skills {
   width: 100%;
-  height: auto;
-  border: 2px solid red;
   padding: 10px;
+  border: 0.5px solid black;
+  border-radius: 15px;
   box-sizing: border-box;
   flex-shrink: 0;
 }
@@ -469,24 +471,81 @@
   text-align: center;
   border-radius: 25px;
   width: fit-content;
-  margin: 0;
   max-width: 100%;
+  margin: 0;
   box-sizing: border-box;
-  cursor: default;
 }
 
 .news .upcomming-event {
   width: 100%;
-  flex: 1;
-  border: 2px solid green;
+  min-height: 0;
+  border: 0.5px solid black;
+  border-radius: 15px;
   box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.news .upcomming-event .hackathon-cards {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 15px;
+  border-radius: 12px;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.news .upcomming-event .hackathon-cards h4 {
+  margin: 0 0 15px;
+  font-size: 18px;
+}
+
+.news .upcomming-event .hackathon-cards p {
+  margin: 8px 0;
+}
+
+.news .upcomming-event .hackathon-cards a {
+  display: inline-block;
+  margin-top: 10px;
+  text-decoration: none;
+}
+
+.hackathon-dots {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.hackathon-dots button {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #ccc;
+  cursor: pointer;
+}
+
+.hackathon-dots button.active {
+  width: 20px;
+  border-radius: 10px;
 }
 
 .news .tech-news {
   width: 100%;
-  flex: 1;
+  flex: 1 1 0;
+  min-height: 0;
   border: 2px solid black;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .main-content nav .search-bar {
