@@ -487,6 +487,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding: 10px;
 }
 
 .news .upcomming-event .hackathon-cards {
@@ -537,6 +538,34 @@
 .hackathon-dots button.active {
   width: 20px;
   border-radius: 10px;
+}
+
+.hackathon-message {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 12px;
+  margin-bottom: 5px;
+  font-size: 13px;
+  color: #555;
+  text-align: center;
+}
+
+.no-hackathons {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 20px;
+  text-align: center;
+}
+
+.no-hackathons h4 {
+  margin: 0 0 8px;
+  font-size: 17px;
+}
+
+.no-hackathons p {
+  margin: 0;
+  font-size: 13px;
+  color: #777;
 }
 
 .news .tech-news {

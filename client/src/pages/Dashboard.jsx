@@ -82,6 +82,7 @@ const Dashboard = () => {
   const [trendingSkills, setTrendingSkills] = useState([]);
   const [currentHackathon, setCurrentHackathon] = useState(0);
   const [hackathons, setHackathons] = useState([]);
+  const [hackathonMessage, setHackathonMessage] = useState("");
 
   useEffect(() => {
     if (hackathons.length <= 1) return;
@@ -111,14 +112,39 @@ const Dashboard = () => {
           }
         );
 
-        console.log("Hackathons:", response.data);
+        console.log("Hackathon response:", response.data);
 
-        setHackathons(response.data);
+        // Get events
+        setHackathons(response.data.events || []);
+
+        // Get fallback / no-event message
+        setHackathonMessage(response.data.message || "");
+
+        // Reset carousel to first event
+        setCurrentHackathon(0);
 
       } catch (error) {
-        console.error("Hackathon fetch error:", error);
-        console.log("Status:", error.response?.status);
-        console.log("Response:", error.response?.data);
+
+        console.error(
+          "Hackathon fetch error:",
+          error
+        );
+
+        console.log(
+          "Status:",
+          error.response?.status
+        );
+
+        console.log(
+          "Response:",
+          error.response?.data
+        );
+
+        setHackathons([]);
+
+        setHackathonMessage(
+          "Unable to load upcoming hackathons."
+        );
       }
     };
 
@@ -300,20 +326,32 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="upcomming-event">
-              {hackathons.length > 0 && (
+              {hackathonMessage && (
+                <div className="hackathon-message">
+                  {hackathonMessage}
+                </div>
+              )}
+
+              {hackathons.length > 0 ? (
                 <>
                   <div className="hackathon-cards">
-                    <h4>{hackathons[currentHackathon].title}</h4>
+
+                    <h4>
+                      {hackathons[currentHackathon].title}
+                    </h4>
+
                     <p>
                       <strong>Mode:</strong>{" "}
                       {hackathons[currentHackathon].mode}
                     </p>
+
                     <p>
                       <strong>Deadline:</strong>{" "}
                       {new Date(
                         hackathons[currentHackathon].deadline
                       ).toLocaleString()}
                     </p>
+
                     <a
                       href={hackathons[currentHackathon].url}
                       target="_blank"
@@ -322,19 +360,38 @@ const Dashboard = () => {
                       View Hackathon →
                     </a>
                   </div>
-                  <div className="hackathon-dots">
-                    {hackathons.map((_, index) => (
-                      <button
-                        key={index}
-                        className={
-                          index === currentHackathon ? "active" : ""
-                        }
-                        onClick={() => setCurrentHackathon(index)}
-                      />
-                    ))}
-                  </div>
+                  {hackathons.length > 1 && (
+                    <div className="hackathon-dots">
+
+                      {hackathons.map((_, index) => (
+                        <button
+                          key={index}
+                          className={
+                            index === currentHackathon
+                              ? "active"
+                              : ""
+                          }
+                          onClick={() =>
+                            setCurrentHackathon(index)
+                          }
+                          aria-label={`Go to hackathon ${index + 1}`}
+                        />
+                      ))}
+
+                    </div>
+                  )}
                 </>
+              ) : (
+                <div className="no-hackathons">
+                  <h4>No Upcoming Hackathons</h4>
+
+                  <p>
+                    Check back later for new opportunities.
+                  </p>
+                </div>
+
               )}
+
             </div>
           </div>
         </div>
