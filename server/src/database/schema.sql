@@ -12,6 +12,7 @@ CREATE TABLE users (
 );
 
 SELECT * FROM users;
+SELECT * FROM users WHERE user_id != 1;
 -- TRUNCATE TABLE users RESTART IDENTITY CASCADE;
 
 -- DROP TABLE users;
@@ -289,3 +290,42 @@ CREATE TABLE github_accounts (
 
 SELECT * FROM github_accounts;
 -- TRUNCATE TABLE github_accounts RESTART IDENTITY CASCADE;
+
+create table connections (
+    connection_id serial primary key,
+    sender_id int not null references users(user_id) on delete cascade,
+    receiver_id int not null references users(user_id) on delete cascade,
+    status varchar(20) not null default 'pending',
+    created_at timestamp default current_timestamp,
+    updated_at timestamp default current_timestamp,
+    check (sender_id <> receiver_id),
+    check (status in ('pending', 'accepted', 'rejected', 'blocked'))
+);
+
+-- 1. Remove existing duplicates
+WITH ranked_connections AS (
+    SELECT
+        connection_id,
+        ROW_NUMBER() OVER (
+            PARTITION BY
+                CASE WHEN sender_id < receiver_id THEN sender_id ELSE receiver_id END,
+                CASE WHEN sender_id > receiver_id THEN sender_id ELSE receiver_id END
+            ORDER BY
+                updated_at DESC,
+                connection_id DESC
+        ) AS row_num
+    FROM connections
+)
+DELETE FROM connections
+WHERE connection_id IN (
+    SELECT connection_id
+    FROM ranked_connections
+    WHERE row_num > 1
+);
+
+CREATE UNIQUE INDEX unique_connection_pair
+ON connections (
+    (CASE WHEN sender_id < receiver_id THEN sender_id ELSE receiver_id END),
+    (CASE WHEN sender_id > receiver_id THEN sender_id ELSE receiver_id END)
+);
+SELECT * FROM connections;

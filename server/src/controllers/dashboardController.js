@@ -1,7 +1,7 @@
 const pool = require("../config/db");
 const config = require("../config/config");
 
-getTrendingSkills = async (req, res) => {
+const getTrendingSkills = async (req, res) => {
   try {
     const result =
       await pool.query(`select s.skill_id, s.skill_name,count(us.user_id) as user_count 
@@ -24,7 +24,7 @@ getTrendingSkills = async (req, res) => {
   }
 };
 
-getUpcomingEvents = async (req, res) => {
+const getUpcomingEvents = async (req, res) => {
   try {
     console.log("User ID:", req.user.id);
 

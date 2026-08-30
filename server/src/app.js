@@ -7,6 +7,7 @@ const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const networkRoutes = require("./routes/networkRoutes");
 
 app.use(cors({
     origin: ["http://localhost:5173", "http://192.168.0.118:5173"],
@@ -17,6 +18,7 @@ app.use(cookie());
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/network", networkRoutes);
 app.use("/uploads", express.static(path.join(__dirname,"uploads")));
 
 
