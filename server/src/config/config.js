@@ -37,10 +37,6 @@ if(!process.env.Gnews_API_KEY){
     throw new Error("Gnews_API_KEY is not defined in environment variables.");
 }
 
-if(!process.env.DevPost_API_KEY){
-    throw new Error("DevPost_API_KEY is not defined in environment variables.");
-}
-
 if(!process.env.Brabble_API_KEY){
     throw new Error("Brabble_API_KEY is not defined in environment variables.");
 }

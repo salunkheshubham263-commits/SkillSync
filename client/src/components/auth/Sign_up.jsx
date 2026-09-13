@@ -13,7 +13,7 @@ const Sign_up = ({ setActiveForm }) => {
         e.preventDefault();
         try {
             const body = { first_name, last_name, username, email, age, password };
-            const response = await fetch("http://192.168.0.118:5000/api/auth/signup", {
+            const response = await fetch("http://192.168.0.111:5000/api/auth/signup", {
                 method: "POST",
                 headers: { "content-type": "application/json" },
                 credentials: "include",

@@ -4,8 +4,6 @@ const getSuggestions = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    console.log("Logged-in User ID:", userId);
-
     const suggestions = await pool.query(
       `
       WITH my_profile AS (
@@ -39,6 +37,7 @@ const getSuggestions = async (req, res) => {
         u.user_id,
         u.first_name,
         u.last_name,
+        u.username,
 
         p.profile_image,
         p.college,
@@ -133,7 +132,6 @@ const getSuggestions = async (req, res) => {
       WHERE
         u.user_id != $1
 
-        -- Don't show blocked users
         AND NOT EXISTS (
           SELECT 1
           FROM connections c
@@ -153,13 +151,9 @@ const getSuggestions = async (req, res) => {
         same_course DESC,
         same_course_year DESC,
         same_city DESC
-
       `,
-      [userId],
+      [userId]
     );
-
-    console.log("Suggestions:", suggestions.rows);
-    console.log("Number of Suggestions:", suggestions.rows.length);
 
     res.status(200).json(suggestions.rows);
   } catch (err) {
@@ -177,14 +171,12 @@ const sendConnectionRequest = async (req, res) => {
     const sender_id = req.user.id;
     const receiver_id = parseInt(req.params.receiver_id);
 
-    console.log("Sender ID: ", sender_id);
-    console.log("Receiver ID: ", receiver_id);
-
-    if (!receiver_id) {
+    if (!receiver_id || isNaN(receiver_id)) {
       return res.status(400).json({
         message: "Receiver ID is required",
       });
     }
+
     if (sender_id === receiver_id) {
       return res.status(400).json({
         message: "You cannot connect with yourself",
@@ -193,88 +185,197 @@ const sendConnectionRequest = async (req, res) => {
 
     const existingConnection = await pool.query(
       `
-            select connection_id, sender_id, receiver_id, status
-            from connections
-            where
-            (sender_id = $1 and receiver_id = $2)
-            or
-            (sender_id = $2 and receiver_id = $1)
-            limit 1
-            `,
-            [sender_id, receiver_id]
+      SELECT
+        connection_id,
+        sender_id,
+        receiver_id,
+        status
+      FROM connections
+      WHERE
+        (sender_id = $1 AND receiver_id = $2)
+        OR
+        (sender_id = $2 AND receiver_id = $1)
+      ORDER BY updated_at DESC
+      LIMIT 1
+      `,
+      [sender_id, receiver_id]
     );
 
-    console.log("Existing connection:", existingConnection.rows);
+    if (existingConnection.rows.length > 0) {
+      const connection = existingConnection.rows[0];
 
-    if(existingConnection.rows.length > 0) {
-        const connection = existingConnection.rows[0];
+      if (connection.status === "pending") {
+        return res.status(409).json({
+          message: "Connection request already pending",
+          status: "pending",
+        });
+      }
 
-        if(connection.status === "pending"){
-            return res.status(409).json({
-                message: "Connection request already pending",
-                stauts: "pending"
-            });
+      if (connection.status === "accepted") {
+        return res.status(400).json({
+          message: "You are already connected",
+          status: "accepted",
+        });
+      }
+
+      if (connection.status === "blocked") {
+        return res.status(403).json({
+          message: "Connection is blocked",
+          status: "blocked",
+        });
+      }
+
+      if (connection.status === "rejected") {
+        const updated = await pool.query(
+          `
+          UPDATE connections
+          SET
+            sender_id = $1,
+            receiver_id = $2,
+            status = 'pending',
+            updated_at = CURRENT_TIMESTAMP
+          WHERE connection_id = $3
+          RETURNING *
+          `,
+          [
+            sender_id,
+            receiver_id,
+            connection.connection_id,
+          ]
+        );
+
+        const updatedConnection = updated.rows[0];
+
+        const notification = await pool.query(
+          `
+          INSERT INTO notifications
+          (
+            user_id,
+            sender_id,
+            connection_id,
+            type,
+            message
+          )
+          VALUES
+          (
+            $1,
+            $2,
+            $3,
+            'connection_request',
+            $4
+          )
+          RETURNING *
+          `,
+          [
+            receiver_id,
+            sender_id,
+            updatedConnection.connection_id,
+            "sent you a connection request",
+          ]
+        );
+
+        const io = req.app.get("io");
+
+        if (io) {
+          io.to(`user:${receiver_id}`).emit(
+            "connection_request",
+            {
+              connection_id:
+                updatedConnection.connection_id,
+              sender_id,
+              receiver_id,
+              status: "pending",
+            }
+          );
         }
 
-        if(connection.status === "accepted") {
-            return res.status(400).json({
-                message: "You are already connected",
-                status: "accepted"
-            });
-        }
-
-        if(connection.status === "blocked"){
-            return res.status(403).json({
-                message: "Connection  is blocked",
-                status: "blocked"
-            });
-        }
-
-        if(connection.stauts === "rejcted"){
-            const updated = await pool.query(`
-                update connection
-                set
-                sender_id = $1,
-                receiver_id = $1,
-                status = "pending
-                updated_at = current_timestamp"
-                where connection_id = $3
-                returning * 
-                `,[sender_id, receiver_id, connection.connection_id]);
-
-                return res.status(200).json({
-                    message: "Connection request sent",
-                    connection: updated.rows [0]
-                });
-        }
-
+        return res.status(200).json({
+          message: "Connection request sent",
+          connection: updatedConnection,
+          notification: notification.rows[0],
+        });
+      }
     }
+
     const newConnection = await pool.query(
       `
       INSERT INTO connections
-        (sender_id, receiver_id, status)
+      (
+        sender_id,
+        receiver_id,
+        status
+      )
       VALUES
-        ($1, $2, 'pending')
+      (
+        $1,
+        $2,
+        'pending'
+      )
       RETURNING *
       `,
-      [senderId, receiverId]
+      [sender_id, receiver_id]
     );
 
-    console.log("New connection:", newConnection.rows[0]);
+    const connection = newConnection.rows[0];
+
+    const notification = await pool.query(
+      `
+      INSERT INTO notifications
+      (
+        user_id,
+        sender_id,
+        connection_id,
+        type,
+        message
+      )
+      VALUES
+      (
+        $1,
+        $2,
+        $3,
+        'connection_request',
+        $4
+      )
+      RETURNING *
+      `,
+      [
+        receiver_id,
+        sender_id,
+        connection.connection_id,
+        "sent you a connection request",
+      ]
+    );
+
+    const io = req.app.get("io");
+
+    if (io) {
+      io.to(`user:${receiver_id}`).emit(
+        "connection_request",
+        {
+          connection_id: connection.connection_id,
+          sender_id,
+          receiver_id,
+          status: "pending",
+        }
+      );
+    }
 
     res.status(201).json({
       message: "Connection request sent",
-      connection: newConnection.rows[0]
+      connection,
+      notification: notification.rows[0],
     });
-
   } catch (err) {
     console.error("Error sending connection request:", err);
 
     res.status(500).json({
       message: "Failed to send connection request",
-      error: err.message
+      error: err.message,
     });
   }
 };
 
-module.exports = { getSuggestions, sendConnectionRequest };
+module.exports = {
+  getSuggestions,
+  sendConnectionRequest,
+};

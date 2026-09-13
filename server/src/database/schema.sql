@@ -278,6 +278,8 @@ VALUES
 ('System Design'),
 ('Software Architecture');
 
+select * from skills;
+
 CREATE TABLE github_accounts (
     github_id BIGINT PRIMARY KEY,
     user_id INT UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
@@ -329,3 +331,20 @@ ON connections (
     (CASE WHEN sender_id > receiver_id THEN sender_id ELSE receiver_id END)
 );
 SELECT * FROM connections;
+DELETE FROM connections where connection_id = 6;
+-- TRUNCATE TABLE connections RESTART IDENTITY CASCADE;
+
+create table notifications (
+    notification_id serial primary key,
+    user_id int not null references users(user_id) on delete cascade,
+    sender_id int not null references users(user_id) on delete cascade,
+    connection_id int references connections(connection_id) on delete cascade,
+    type varchar(20) not null,
+    message text not null,
+    is_read boolean default false,
+    created_at timestamp default current_timestamp
+);
+
+select * from notifications;
+
+-- TRUNCATE TABLE notifications RESTART IDENTITY CASCADE;

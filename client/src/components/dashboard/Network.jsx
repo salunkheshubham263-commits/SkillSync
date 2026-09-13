@@ -1,8 +1,61 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import socket from "../../socket/socket";
 
 const Network = () => {
   const [suggestions, setSuggestions] = useState([]);
+
+  useEffect(() => {
+    const handleConnect = () => {
+      console.log("🟢 Socket connected:", socket.id);
+    };
+
+    const handleConnectError = (error) => {
+      console.error("🔴 Socket connection error:", error.message);
+    };
+
+    const handleDisconnect = (reason) => {
+      console.log("🟡 Socket disconnected:", reason);
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("connect_error", handleConnectError);
+    socket.on("disconnect", handleDisconnect);
+
+    // Important: if socket was already connected before this component mounted
+    if (socket.connected) {
+      console.log("🟢 Socket already connected:", socket.id);
+    }
+
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("connect_error", handleConnectError);
+      socket.off("disconnect", handleDisconnect);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleConnectionRequest = (data) => {
+      console.log("🔔 Connection request received:", data);
+
+      setSuggestions((prev) =>
+        prev.map((person) =>
+          person.user_id === data.sender_id
+            ? {
+              ...person,
+              connection_status: "pending",
+            }
+            : person
+        )
+      );
+    };
+
+    socket.on("connection_request", handleConnectionRequest);
+
+    return () => {
+      socket.off("connection_request", handleConnectionRequest);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -12,7 +65,7 @@ const Network = () => {
         console.log("Token:", token);
 
         const response = await axios.get(
-          "http://192.168.0.118:5000/api/network/suggestions",
+          "http://192.168.0.111:5000/api/network/suggestions",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -40,7 +93,7 @@ const Network = () => {
       console.log("Sending connection to:", receiverId);
 
       const response = await axios.post(
-        `http://192.168.0.118:5000/api/network/connect/${receiverId}`,
+        `http://192.168.0.111:5000/api/network/connect/${receiverId}`,
         {},
         {
           headers: {
@@ -70,7 +123,7 @@ const Network = () => {
       console.log("Response:", err.response?.data);
     }
   };
-  
+
 
 
   return (
@@ -86,21 +139,25 @@ const Network = () => {
               className="profile-pic"
               src={
                 suggestion.profile_image
-                  ? `http://192.168.0.118:5000/uploads/profiles/${suggestion.profile_image}`
+                  ? `http://192.168.0.111:5000/uploads/profiles/${suggestion.profile_image}`
                   : "profile_picture.png"
               }
               alt="Profile"
             />
+            <div>
+              <h3
+                style={{
+                  paddingLeft: 20,
+                  cursor: "default",
+                }}
+              >
+                {suggestion.first_name} {suggestion.last_name}
+              </h3>
+              <p style={{ paddingLeft: 20, cursor: "default" }}>
+                @{suggestion.username}
+              </p>
 
-            <h3
-              style={{
-                paddingLeft: 20,
-                cursor: "default",
-              }}
-            >
-              {suggestion.first_name} {suggestion.last_name}
-            </h3>
-
+            </div>
           </div>
 
           <div className="buttons">

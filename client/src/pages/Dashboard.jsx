@@ -7,12 +7,62 @@ import Projects from "../components/dashboard/Projects";
 import Notiflication from "../components/dashboard/Notiflication";
 import Setting from "../components/dashboard/Setting";
 import News from "../components/dashboard/News";
+import socket from "../socket/socket";
 
 const Dashboard = () => {
   const [active, setActive] = useState("home")
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          return;
+        }
+
+        const response = await axios.get(
+          "http://192.168.0.111:5000/api/notifications/unread-count",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setUnreadCount(response.data.unread_count);
+      } catch (err) {
+        console.error(
+          "Error fetching notification count:",
+          err.response?.data || err
+        );
+      }
+    };
+
+    fetchUnreadCount();
+  }, []);
+
+    useEffect(() => {
+  const handleConnectionRequest = () => {
+    setUnreadCount((prev) => prev + 1);
+  };
+
+  window.addEventListener(
+    "connection-request-notification",
+    handleConnectionRequest
+  );
+
+  return () => {
+    window.removeEventListener(
+      "connection-request-notification",
+      handleConnectionRequest
+    );
+  };
+}, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -43,7 +93,7 @@ const Dashboard = () => {
 
       // 2. Make Request to Backend API
       const response = await fetch(
-        "http://192.168.0.118:5000/api/auth/github-login",
+        "http://192.168.0.111:5000/api/auth/github-login",
         {
           method: "GET",
           headers: {
@@ -104,7 +154,7 @@ const Dashboard = () => {
         console.log("TOKEN:", token);
 
         const response = await axios.get(
-          "http://192.168.0.118:5000/api/dashboard/get-upcoming-events",
+          "http://192.168.0.111:5000/api/dashboard/get-upcoming-events",
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -151,7 +201,7 @@ const Dashboard = () => {
     const fetchProfileImage = async () => {
       try {
         const response = await axios.get(
-          "http://192.168.0.118:5000/api/profile/getProfileImage",
+          "http://192.168.0.111:5000/api/profile/getProfileImage",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -168,7 +218,7 @@ const Dashboard = () => {
 
     const fetchTrendingSkills = async () => {
       try {
-        const response = await axios.get("http://192.168.0.118:5000/api/dashboard/get-trending-skills");
+        const response = await axios.get("http://192.168.0.111:5000/api/dashboard/get-trending-skills");
         setTrendingSkills(response.data);
       } catch (err) {
         console.error(err);
@@ -257,12 +307,39 @@ const Dashboard = () => {
           </form>
           <div className="buttons">
             <button className="github" onClick={githubLogin}>GitHub Connect</button>
-            <button className={`notify ${active === "notiflication" ? "active" : ""}`} onClick={() => setActive("notiflication")}><svg xmlns="http://www.w3.org/2000/svg" width={23} fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" className="size-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5" />
-            </svg></button>
+            <button
+              className={`notify ${active === "notiflication" ? "active" : ""
+                }`}
+              onClick={() => {
+                setActive("notiflication");
+                setUnreadCount(0);
+              }}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width={23}
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                className="size-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5"
+                />
+              </svg>
+
+              {unreadCount > 0 && (
+                <span className="notification-badge">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </button>
             <div className="profile-section" ref={dropdownRef}>
               <img
-                src={profileImage ? `http://192.168.0.118:5000/uploads/profiles/${profileImage}` : "profile_picture.png"
+                src={profileImage ? `http://192.168.0.111:5000/uploads/profiles/${profileImage}` : "profile_picture.png"
                 }
                 alt="Profile"
                 className="profile-pic"
