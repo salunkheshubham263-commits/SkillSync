@@ -257,6 +257,30 @@ const Dashboard = () => {
     fetchHackathon();
   }, []);
 
+  const logoutUser = async () => {
+  try {
+    await axios.get(
+      "http://192.168.0.111:5000/api/auth/logout",
+      {
+        withCredentials: true,
+      }
+    );
+
+    localStorage.removeItem("token");
+
+    window.location.href = "/";
+  } catch (error) {
+    console.error(
+      "Logout error:",
+      error.response?.data || error
+    );
+
+    localStorage.removeItem("token");
+
+    window.location.href = "/";
+  }
+};
+
   return (
     <div className="dashboard">
       <aside className="side-bar">
@@ -458,7 +482,7 @@ const Dashboard = () => {
                   <button>My Account</button>
                   <button>Settings</button>
                   <button>Help</button>
-                  <button className="logout">Logout</button>
+                  <button className="logout" onClick={logoutUser}>Logout</button>
                 </div>
               )}
             </div>
