@@ -181,4 +181,76 @@ const getUpcomingEvents = async (req, res) => {
   }
 };
 
-module.exports = { getTrendingSkills, getUpcomingEvents };
+const searchStudents = async (req,res) =>{
+  try {
+    const userId = req.user.id;
+    const search = req.query.q?.trim();
+
+    if(!search){
+      return res.status(200).json([]);
+    }
+
+    const result = await pool.query(`
+      select distinct
+      u.user_id,
+      u.first_name,
+      u.last_name,
+      u.username,
+      p.profile_image,
+      p.college,
+      p.courses,
+      p.courses_year,
+      p.city,
+      coalesce(
+      ARRAY_AGG(distinct s.skill_name)
+      filter (where s.skill_name is not null),
+      '{}'
+      ) AS skills
+
+      from users u
+
+      left join profiles p on u.user_id = p.user_id
+      left join user_skills us on u.user_id = us.user_id
+      left join skills s on us.skill_id = s.skill_id
+
+      where
+      u.user_id != $1
+      and (
+      u.first_name ILIKE $2
+      or u.last_name ILIKE $2
+      or u.username ILIKE $2
+      or p.college ILIKE $2
+      or p.courses ILIKE $2
+      or p.city ILIKE $2
+      or s.skill_name ILIKE $2
+      )
+
+      group by
+      u.user_id,
+      u.first_name,
+      u.last_name,
+      u.username,
+      p.profile_image,
+      p.college,
+      p.courses,
+      p.courses_year,
+      p.city
+
+      order by
+      u.first_name,
+      u.last_name
+
+      limit 10
+      `, [userId, `%${search}%`]);
+
+      res.status(200).json(result.rows);
+  } catch (err) {
+    console.error("Student search error: ", err);
+    res.status(500).json({
+      message: "Failed to search students",
+      error: err.message
+    });
+  }
+}
+
+module.exports = { getTrendingSkills, getUpcomingEvents, searchStudents };

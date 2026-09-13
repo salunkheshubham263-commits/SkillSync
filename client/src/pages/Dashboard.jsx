@@ -7,14 +7,41 @@ import Projects from "../components/dashboard/Projects";
 import Notiflication from "../components/dashboard/Notiflication";
 import Setting from "../components/dashboard/Setting";
 import News from "../components/dashboard/News";
-import socket from "../socket/socket";
 
 const Dashboard = () => {
-  const [active, setActive] = useState("home")
+  const [active, setActive] = useState("home");
   const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
   const [open, setOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const searchStudents = async () => {
+      if (!search.trim()) {
+        setSearchResults([]);
+        return;
+      }
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get(
+          `http://192.168.0.111:5000/api/dashboard/search-students?q=${encodeURIComponent(search)}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+
+        setSearchResults(response.data);
+      } catch (err) {
+        console.error("Students search error: ", err.response?.data || err);
+        setSearchResults([]);
+      }
+    };
+    const timer = setTimeout(searchStudents, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     const fetchUnreadCount = async () => {
@@ -46,23 +73,23 @@ const Dashboard = () => {
     fetchUnreadCount();
   }, []);
 
-    useEffect(() => {
-  const handleConnectionRequest = () => {
-    setUnreadCount((prev) => prev + 1);
-  };
+  useEffect(() => {
+    const handleConnectionRequest = () => {
+      setUnreadCount((prev) => prev + 1);
+    };
 
-  window.addEventListener(
-    "connection-request-notification",
-    handleConnectionRequest
-  );
-
-  return () => {
-    window.removeEventListener(
+    window.addEventListener(
       "connection-request-notification",
       handleConnectionRequest
     );
-  };
-}, []);
+
+    return () => {
+      window.removeEventListener(
+        "connection-request-notification",
+        handleConnectionRequest
+      );
+    };
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -284,27 +311,85 @@ const Dashboard = () => {
       </aside>
       <div className="main-content">
         <nav>
-          <form className="search-bar">
-            <div className="search-bar-wrapper">
-              {search === "" && (
-                <svg
-                  className="search-icon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth="1.5"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-                  />
-                </svg>
-              )}
-              <input className="search" type="search" placeholder="Search skills, students, projects..." value={search} onChange={(e) => setSearch(e.target.value)} />
-            </div>
-          </form>
+          <div className="search-container">
+            <form className="search-bar" onSubmit={(e) => e.preventDefault()}>
+              <div className="search-bar-wrapper">
+                {search === "" && (
+                  <svg
+                    className="search-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                    />
+                  </svg>
+                )}
+
+                <input
+                  className="search"
+                  type="search"
+                  placeholder="Search skills, students, projects..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </div>
+            </form>
+
+            {search.trim() && (
+              <div className="search-results">
+                {searchResults.length > 0 ? (
+                  searchResults.map((student) => (
+                    <div
+                      className="search-result"
+                      key={student.user_id}
+                    >
+                      <img
+                        src={
+                          student.profile_image
+                            ? `http://192.168.0.111:5000/uploads/profiles/${student.profile_image}`
+                            : "profile_picture.png"
+                        }
+                        alt="Profile"
+                        className="search-result-image"
+                      />
+
+                      <div className="search-result-info">
+                        <strong>
+                          {student.first_name} {student.last_name}
+                        </strong>
+
+                        <span>
+                          @{student.username}
+                        </span>
+
+                        {student.college && (
+                          <small>
+                            {student.college}
+                          </small>
+                        )}
+
+                        {student.skills?.length > 0 && (
+                          <small>
+                            {student.skills.slice(0, 3).join(" • ")}
+                          </small>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="no-search-results">
+                    No students found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           <div className="buttons">
             <button className="github" onClick={githubLogin}>GitHub Connect</button>
             <button
