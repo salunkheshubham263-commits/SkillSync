@@ -9,6 +9,8 @@ const profileRoutes = require("./routes/profileRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const networkRoutes = require("./routes/networkRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const projectRoutes = require("./routes/projectRoutes");
+
 
 app.use(
   cors({
@@ -25,6 +27,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/network", networkRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/projects", projectRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 

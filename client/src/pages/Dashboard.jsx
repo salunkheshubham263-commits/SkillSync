@@ -4,6 +4,7 @@ import Feed from "../components/dashboard/Feed";
 import Network from "../components/dashboard/Network";
 import Messages from "../components/dashboard/Messages";
 import Projects from "../components/dashboard/Projects";
+import ProjectForm from "../components/dashboard/ProjectForm";
 import Notiflication from "../components/dashboard/Notiflication";
 import Setting from "../components/dashboard/Setting";
 import News from "../components/dashboard/News";
@@ -14,6 +15,7 @@ const Dashboard = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [open, setOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showProjectForm, setShowProjectForm] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -258,28 +260,28 @@ const Dashboard = () => {
   }, []);
 
   const logoutUser = async () => {
-  try {
-    await axios.get(
-      "http://192.168.0.111:5000/api/auth/logout",
-      {
-        withCredentials: true,
-      }
-    );
+    try {
+      await axios.get(
+        "http://192.168.0.111:5000/api/auth/logout",
+        {
+          withCredentials: true,
+        }
+      );
 
-    localStorage.removeItem("token");
+      localStorage.removeItem("token");
 
-    window.location.href = "/";
-  } catch (error) {
-    console.error(
-      "Logout error:",
-      error.response?.data || error
-    );
+      window.location.href = "/";
+    } catch (error) {
+      console.error(
+        "Logout error:",
+        error.response?.data || error
+      );
 
-    localStorage.removeItem("token");
+      localStorage.removeItem("token");
 
-    window.location.href = "/";
-  }
-};
+      window.location.href = "/";
+    }
+  };
 
   return (
     <div className="dashboard">
@@ -415,6 +417,7 @@ const Dashboard = () => {
             )}
           </div>
           <div className="buttons">
+            <button className="upload-project" onClick={() => setShowProjectForm(true)}>Upload Project <span style={{ fontSize: '1.1vw', }}>+</span></button>
             <button className="github" onClick={githubLogin}>GitHub Connect</button>
             <button
               className={`notify ${active === "notiflication" ? "active" : ""
@@ -491,13 +494,19 @@ const Dashboard = () => {
         </nav>
         <div className="hero1">
           <div className="window">
-            {active === "home" && <Feed />}
-            {active === "network" && <Network />}
-            {active === "messages" && <Messages />}
-            {active === "projects" && <Projects />}
-            {active === "notiflication" && <Notiflication />}
-            {active === "setting" && <Setting />}
-            {active === "news" && <News />}
+            {showProjectForm ? (
+              <ProjectForm onBack={() => setShowProjectForm(false)} onSuccess={() => { setShowProjectForm(false); setActive("projects"); }} />
+            ) : (
+              <>
+                {active === "home" && <Feed />}
+                {active === "network" && <Network />}
+                {active === "messages" && <Messages />}
+                {active === "projects" && <Projects />}
+                {active === "notiflication" && <Notiflication />}
+                {active === "setting" && <Setting />}
+                {active === "news" && <News />}
+              </>
+            )}
           </div>
           <div className="news">
             <div className="trending-skills">

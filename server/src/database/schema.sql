@@ -348,3 +348,192 @@ create table notifications (
 select * from notifications;
 
 -- TRUNCATE TABLE notifications RESTART IDENTITY CASCADE;
+
+CREATE TABLE projects (
+    project_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    title VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
+    source VARCHAR(20) NOT NULL CHECK (source IN ('github', 'local')),
+    github_repo_url TEXT,
+    github_repo_id BIGINT,
+    project_file VARCHAR(255),
+    live_demo_url TEXT,
+    category VARCHAR(100) NOT NULL,
+    visibility VARCHAR(20) NOT NULL DEFAULT 'public' CHECK (visibility IN ('public', 'connections', 'private')),
+    cover_image VARCHAR(255),
+    under_development BOOLEAN NOT NULL DEFAULT FALSE,
+    looking_for_contributors BOOLEAN NOT NULL DEFAULT FALSE,
+    contribution_type VARCHAR(20) CHECK (contribution_type IN ('paid', 'unpaid')),
+    payment_type VARCHAR(20) CHECK (payment_type IN ('fixed', 'milestone')),
+    fixed_task TEXT,
+    fixed_payment_amount NUMERIC(12,2),
+    status VARCHAR(20) NOT NULL DEFAULT 'in_development' CHECK (status IN ('in_development', 'completed')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK ((source = 'github' AND github_repo_url IS NOT NULL) OR (source = 'local' AND project_file IS NOT NULL)),
+    CHECK ((under_development = FALSE AND looking_for_contributors = FALSE) OR under_development = TRUE),
+    CHECK ((looking_for_contributors = FALSE AND contribution_type IS NULL AND payment_type IS NULL) OR looking_for_contributors = TRUE),
+    CHECK ((contribution_type = 'paid' AND payment_type IS NOT NULL) OR contribution_type = 'unpaid' OR contribution_type IS NULL),
+    CHECK ((payment_type = 'fixed' AND fixed_task IS NOT NULL AND fixed_payment_amount IS NOT NULL AND fixed_payment_amount >= 0) OR payment_type = 'milestone' OR payment_type IS NULL),
+    CHECK ((under_development = TRUE AND looking_for_contributors = TRUE) OR fixed_task IS NULL),
+    CHECK ((under_development = TRUE AND looking_for_contributors = TRUE) OR fixed_payment_amount IS NULL)
+);
+
+select * from projects;
+
+--TRUNCATE TABLE projects RESTART IDENTITY CASCADE;
+
+CREATE TABLE technologies (
+    technology_id SERIAL PRIMARY KEY,
+    technology_name VARCHAR(100) UNIQUE NOT NULL
+);
+
+select * from technologies;
+
+--TRUNCATE TABLE technologies RESTART IDENTITY CASCADE;
+
+CREATE TABLE project_technologies (
+    project_id INT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    technology_id INT NOT NULL REFERENCES technologies(technology_id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (project_id, technology_id)
+);
+
+SELECT * FROM project_technologies;
+
+--Truncate table project_technologies restart identity cascade;
+
+CREATE TABLE project_milestones (
+    milestone_id SERIAL PRIMARY KEY,
+    project_id INT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    title VARCHAR(150) NOT NULL,
+    task TEXT NOT NULL,
+    payment_amount NUMERIC(12,2),
+    status VARCHAR(20) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'open', 'in_progress', 'submitted', 'under_review', 'completed', 'disputed', 'cancelled')),
+    payment_status VARCHAR(20) NOT NULL DEFAULT 'unpaid' CHECK (payment_status IN ('unpaid', 'payment_pending', 'paid', 'disputed', 'refunded', 'cancelled')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (payment_amount IS NULL OR payment_amount >= 0)
+);
+
+select * FROM project_milestones;
+
+--Truncate table project_milestones restart identity cascade;
+
+CREATE TABLE contribution_requests (
+    contribution_id SERIAL PRIMARY KEY,
+    project_id INT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    owner_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    contributor_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'withdrawn', 'completed', 'closed', 'disputed')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (owner_id <> contributor_id)
+);
+
+select * FROM contribution_requests;
+
+--Truncate table contribution_requests restart identity cascade;
+
+CREATE TABLE project_contributors (
+    project_contributor_id SERIAL PRIMARY KEY,
+    project_id INT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    contribution_id INT REFERENCES contribution_requests(contribution_id) ON DELETE SET NULL,
+    role VARCHAR(100),
+    status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'removed')),
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP,
+    UNIQUE (project_id, user_id)
+);
+
+select * FROM project_contributors;
+
+--Truncate table project_contributors restart identity cascade;
+
+CREATE TABLE payment_agreements (
+    agreement_id SERIAL PRIMARY KEY,
+    project_id INT NOT NULL REFERENCES projects(project_id) ON DELETE CASCADE,
+    milestone_id INT REFERENCES project_milestones(milestone_id) ON DELETE CASCADE,
+    contributor_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    agreed_amount NUMERIC(12,2) NOT NULL CHECK (agreed_amount >= 0),
+    currency VARCHAR(10) NOT NULL DEFAULT 'INR',
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'completed', 'cancelled', 'disputed')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    accepted_at TIMESTAMP,
+    completed_at TIMESTAMP
+);
+
+select * FROM payment_agreements;
+
+--Truncate table payment_agreements restart identity cascade;
+
+CREATE TABLE payment_transactions (
+    transaction_id SERIAL PRIMARY KEY,
+    agreement_id INT NOT NULL REFERENCES payment_agreements(agreement_id) ON DELETE CASCADE,
+    payer_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    receiver_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    amount NUMERIC(12,2) NOT NULL CHECK (amount > 0),
+    currency VARCHAR(10) NOT NULL DEFAULT 'INR',
+    provider VARCHAR(50),
+    provider_transaction_id VARCHAR(255),
+    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'completed', 'failed', 'refunded', 'disputed')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP
+);
+
+select * FROM payment_transactions;
+
+--Truncate table payment_transactions restart identity cascade;
+
+CREATE TABLE audit_logs (
+    audit_id BIGSERIAL PRIMARY KEY,
+    user_id INT REFERENCES users(user_id) ON DELETE SET NULL,
+    project_id INT REFERENCES projects(project_id) ON DELETE SET NULL,
+    action VARCHAR(100) NOT NULL,
+    entity_type VARCHAR(50),
+    entity_id BIGINT,
+    old_data JSONB,
+    new_data JSONB,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+select * FROM audit_logs;
+
+--Truncate table audit_logs restart identity cascade;
+
+CREATE INDEX idx_projects_user_id ON projects(user_id);
+CREATE INDEX idx_projects_status ON projects(status);
+CREATE INDEX idx_projects_visibility ON projects(visibility);
+CREATE INDEX idx_project_milestones_project_id ON project_milestones(project_id);
+CREATE INDEX idx_contribution_requests_project_id ON contribution_requests(project_id);
+CREATE INDEX idx_contribution_requests_contributor_id ON contribution_requests(contributor_id);
+CREATE INDEX idx_contribution_requests_owner_id ON contribution_requests(owner_id);
+CREATE INDEX idx_project_contributors_project_id ON project_contributors(project_id);
+CREATE INDEX idx_project_contributors_user_id ON project_contributors(user_id);
+CREATE INDEX idx_payment_agreements_project_id ON payment_agreements(project_id);
+CREATE INDEX idx_payment_agreements_contributor_id ON payment_agreements(contributor_id);
+CREATE INDEX idx_payment_transactions_agreement_id ON payment_transactions(agreement_id);
+CREATE INDEX idx_audit_logs_project_id ON audit_logs(project_id);
+CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
+
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;
+
+ALTER TABLE project_milestones
+ADD CONSTRAINT milestone_payment_check
+CHECK (
+    payment_amount IS NULL
+    OR payment_amount >= 0
+);
+
+ALTER TABLE projects
+ADD CONSTRAINT projects_status_development_check
+CHECK (
+    (under_development = TRUE AND status = 'in_development')
+    OR
+    (under_development = FALSE AND status = 'completed')
+);

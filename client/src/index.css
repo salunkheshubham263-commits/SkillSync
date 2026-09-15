@@ -1124,6 +1124,421 @@
   font-size: 16px;
 }
 
+.upload-project{
+  background-color: #24292e;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition:
+    transform 0.5s ease,
+    background-color 0.5s; 
+}
+
+.upload-project:hover{
+  background-color: black;
+  transform: translateY(-0.5px);
+}
+
+.project-form-page .backPro-btn {
+  background-color: #24292e;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 5px;
+  transition:
+    transform 0.5s ease,
+    background-color 0.5s;
+}
+
+.project-form-page .backPro-btn:hover {
+  background-color: black;
+  transform: translateY(-0.5px);
+}
+
+.project-form-page .project-form-subtitle {
+  margin-bottom: 20px;
+}
+
+.project-form-page .buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.project-form-page .buttons .gitrepo,
+.project-form-page .buttons .localzip {
+  background: transparent;
+  color: black;
+  padding: 10px 20px;
+  border: 2px solid black;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: ease 0.6s;
+}
+
+.project-form-page .buttons .gitrepo:hover,
+.project-form-page .buttons .localzip:hover {
+  background-color: black;
+  color: white;
+}
+
+.project-form-page form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.project-form-page form .inpute {
+  margin-top: 2%;
+  width: 70%;
+  padding: 10px 20px;
+  font-size: 1.5vw;
+  border-radius: 5px;
+  border: 1.5px solid black;
+  color: #222;
+  box-sizing: border-box;
+  font-family: inherit;
+  background-color: white;
+}
+
+.project-form-page form .inpute::placeholder {
+  color: #777;
+}
+
+.project-form-page form .inpute:focus {
+  outline: none;
+  border-color: #24292e;
+}
+
+.project-form-page .textarea-input {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.project-form-page select.inpute {
+  cursor: pointer;
+}
+
+.project-form-page .file-input {
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.project-form-page .field-label {
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #24292e;
+}
+
+.project-form-page .section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #24292e;
+  margin-bottom: 12px;
+}
+
+.project-form-page .section-description {
+  color: #777;
+  font-size: 14px;
+  margin-top: -5px;
+  margin-bottom: 20px;
+  max-width: 70%;
+}
+
+.project-form-page .visibility-section,
+.project-form-page .development-section,
+.project-form-page .conditional-section {
+  width: 70%;
+  margin-top: 25px;
+}
+
+.project-form-page .radio-group {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+
+.project-form-page .radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-size: 15px;
+  color: #333;
+}
+
+.project-form-page .radio-group input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.project-form-page .payment-section {
+  padding-bottom: 10px;
+}
+
+.project-form-page .amount-input-wrapper {
+  position: relative;
+  width: 70%;
+}
+
+.project-form-page .amount-input-wrapper .amount-input {
+  width: 100%;
+  padding-left: 42px;
+}
+
+.project-form-page .currency-symbol {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  font-weight: 700;
+  color: #24292e;
+  z-index: 2;
+}
+
+.project-form-page .milestone-section {
+  margin-bottom: 20px;
+}
+
+.project-form-page .milestone-card {
+  width: 70%;
+  padding: 20px;
+  margin-top: 18px;
+  border: 1.5px solid #d5d9df;
+  border-radius: 10px;
+  background-color: #fafafa;
+  box-sizing: border-box;
+}
+
+.project-form-page .milestone-card .inpute {
+  width: 100%;
+  margin-top: 0;
+}
+
+.project-form-page .milestone-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.project-form-page .milestone-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #24292e;
+}
+
+.project-form-page .remove-milestone {
+  background: transparent;
+  color: #c62828;
+  border: 1px solid #c62828;
+  padding: 7px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.project-form-page .remove-milestone:hover {
+  background-color: #c62828;
+  color: white;
+}
+
+.project-form-page .add-milestone {
+  margin-top: 18px;
+  background: transparent;
+  color: black;
+  padding: 10px 18px;
+  border: 2px solid black;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.5s ease;
+}
+
+.project-form-page .add-milestone:hover {
+  background-color: black;
+  color: white;
+}
+
+.project-form-page .submitpro {
+  background: transparent;
+  color: black;
+  padding: 10px 20px;
+  border: 2px solid black;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: ease 0.6s;
+  margin-top: 30px;
+}
+
+.project-form-page .submitpro:hover {
+  background-color: black;
+  color: white;
+}
+
+.project-form-page .source-section {
+  width: 70%;
+  margin-bottom: 20px;
+}
+
+.project-form-page .source-section .inpute {
+  width: 100%;
+}
+
+.project-form-page .github-repository-list {
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 5px;
+  box-sizing: border-box;
+}
+
+.project-form-page .github-repository-list::-webkit-scrollbar {
+  width: 7px;
+}
+
+.project-form-page .github-repository-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.project-form-page .github-repository-list::-webkit-scrollbar-thumb {
+  background: #b8bec6;
+  border-radius: 10px;
+}
+
+.project-form-page .github-repository-list::-webkit-scrollbar-thumb:hover {
+  background: #24292e;
+}
+
+.project-form-page .github-repository-item {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid #d5d9df;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #24292e;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.project-form-page .github-repository-item:hover {
+  border-color: #24292e;
+  background: #f7f8fa;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.project-form-page .github-repository-item:active {
+  transform: translateY(0);
+}
+
+.project-form-page .github-repository-item strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  color: #24292e;
+}
+
+.project-form-page .github-repository-item p {
+  margin: 0 0 7px;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-form-page .github-repository-item span {
+  display: block;
+  font-size: 12px;
+  color: #777;
+}
+
+.project-form-page .selected-github-repository {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px 16px;
+  border: 1.5px solid #24292e;
+  border-radius: 9px;
+  background: #f7f8fa;
+  box-sizing: border-box;
+}
+
+.project-form-page .selected-github-repository strong {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.project-form-page .selected-github-repository p {
+  margin: 0 0 5px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #24292e;
+}
+
+.project-form-page .selected-github-repository span {
+  font-size: 12px;
+  color: #777;
+}
+
+.project-form-page .github-repository-list + .selected-github-repository {
+  margin-bottom: 10px;
+}
+
+.project-form-page .source-section > .inpute {
+  margin-top: 5px;
+  padding: 11px 14px;
+  font-size: 15px;
+  border: 1.5px solid #cfd4da;
+  border-radius: 8px;
+}
+
+.project-form-page .source-section > .inpute:focus {
+  border-color: #24292e;
+  box-shadow: 0 0 0 3px rgba(36, 41, 46, 0.08);
+}
+
+.project-form-page .github-repository-description {
+  margin: -2px 0 10px;
+  font-size: 13px;
+  color: #777;
+}
+
 @media (max-width: 600px) {
   .notification-page {
     padding: 16px;

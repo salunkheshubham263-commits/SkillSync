@@ -2,8 +2,8 @@
 
 const Projects = () => {
   return (
-    <div>
-        hello projects
+    <div className="Project-page">
+      
     </div>
   )
 }
